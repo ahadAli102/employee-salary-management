@@ -12,6 +12,7 @@ import com.ahad.salary.management.util.EmployeeUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -144,5 +145,21 @@ public class EmployeeServiceImpl implements EmployeeService {
                                     "Please enter id correctly")
                     );
         }
+    }
+
+    @Override
+    public ResponseEntity<SingleResponse<String, String>> deleteEmployee(int id) {
+        SingleResponse<String, String> response = new SingleResponse<>();
+        if (employeeRepository.findById(id).isPresent()){
+            employeeRepository.deleteById(id);
+            response.setStatusCode(HttpStatus.OK.value());
+            response.setData("Employee deleted");
+        } else {
+            response.setStatusCode(HttpStatus.NOT_FOUND.value());
+            response.setError("No employee exists with the id " + id);
+        }
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(response.getStatusCode()))
+                .body(response);
     }
 }

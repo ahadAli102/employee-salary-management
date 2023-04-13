@@ -18,4 +18,6 @@ public interface EmployeeService {
     ResponseEntity<SingleResponse<EmployeeResponse, String>> updateEmployee(int id, UpdateEmployeeRequest updateEmployeeRequest);
 
     ResponseEntity<SingleResponse<EmployeeResponse, String>> getEmployee(int id);
+
+    ResponseEntity<SingleResponse<String, String>> deleteEmployee(int id);
 }
