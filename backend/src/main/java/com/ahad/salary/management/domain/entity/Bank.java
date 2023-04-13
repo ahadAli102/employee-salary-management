@@ -20,7 +20,7 @@ public class Bank {
     @Column(length = 100)
     private String address;
     @Column(length = 50)
-    private String Country;
+    private String country;
 
     @OneToMany(mappedBy="bank")
     @ToString.Exclude
