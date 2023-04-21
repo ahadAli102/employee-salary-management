@@ -3,7 +3,7 @@ package com.ahad.salary.management.util;
 import com.ahad.salary.management.domain.entity.Address;
 import com.ahad.salary.management.domain.entity.Employee;
 import com.ahad.salary.management.domain.request.AddEmployeeRequest;
-import com.ahad.salary.management.response.EmployeeResponse;
+import com.ahad.salary.management.domain.response.EmployeeResponse;
 
 import java.util.function.Function;
 
@@ -33,4 +33,9 @@ public final class EmployeeUtils {
                     employee.getAddress(),
                     employee.getMobile()
             );
+
+    public enum TransactionType{
+        IN,
+        OUT
+    }
 }

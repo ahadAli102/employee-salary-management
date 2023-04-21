@@ -1,5 +1,6 @@
 package com.ahad.salary.management.domain.entity;
 
+import com.ahad.salary.management.domain.response.AddBankAccountResponse;
 import jakarta.persistence.*;
 import lombok.*;
 

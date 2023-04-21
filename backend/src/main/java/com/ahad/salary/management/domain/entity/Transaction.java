@@ -15,7 +15,7 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private float amount;
+    private double amount;
     private String type;
 
     @ManyToOne

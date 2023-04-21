@@ -2,9 +2,9 @@ package com.ahad.salary.management.service;
 
 import com.ahad.salary.management.domain.request.AddBankRequest;
 import com.ahad.salary.management.domain.request.UpdateBankRequest;
-import com.ahad.salary.management.response.BankResponse;
-import com.ahad.salary.management.response.ListResponse;
-import com.ahad.salary.management.response.SingleResponse;
+import com.ahad.salary.management.domain.response.BankResponse;
+import com.ahad.salary.management.domain.response.ListResponse;
+import com.ahad.salary.management.domain.response.SingleResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface BankService {

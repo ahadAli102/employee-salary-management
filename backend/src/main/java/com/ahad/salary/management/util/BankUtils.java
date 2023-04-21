@@ -2,7 +2,7 @@ package com.ahad.salary.management.util;
 
 import com.ahad.salary.management.domain.entity.Bank;
 import com.ahad.salary.management.domain.request.AddBankRequest;
-import com.ahad.salary.management.response.BankResponse;
+import com.ahad.salary.management.domain.response.BankResponse;
 
 import java.util.function.Function;
 

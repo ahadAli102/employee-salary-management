@@ -1,10 +1,10 @@
 package com.ahad.salary.management.controller;
 
 import com.ahad.salary.management.domain.request.AddBankRequest;
+import com.ahad.salary.management.domain.request.AddBankAccountRequest;
 import com.ahad.salary.management.domain.request.UpdateBankRequest;
-import com.ahad.salary.management.response.BankResponse;
-import com.ahad.salary.management.response.ListResponse;
-import com.ahad.salary.management.response.SingleResponse;
+import com.ahad.salary.management.domain.response.*;
+import com.ahad.salary.management.service.BankAccountService;
 import com.ahad.salary.management.service.BankService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BankController {
     private final BankService bankService;
+    private final BankAccountService bankAccountService;
 
     @PutMapping
     public ResponseEntity<SingleResponse<BankResponse,String>> addBank(@RequestBody AddBankRequest addBankRequest){
@@ -42,6 +43,11 @@ public class BankController {
     @DeleteMapping("/{id}")
     public ResponseEntity<SingleResponse<String,String>> deleteBankInformation(@PathVariable("id") int id){
         return bankService.deleteBankInformation(id);
+    }
+
+    @PutMapping("/accounts")
+    public ResponseEntity<SingleResponse<AddBankAccountResponse,String>> addBankAccount(@RequestBody AddBankAccountRequest bankAccountRequest){
+        return bankAccountService.addBankAccount(bankAccountRequest);
     }
 
 }

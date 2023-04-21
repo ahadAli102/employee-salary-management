@@ -1,12 +1,15 @@
 package com.ahad.salary.management.service.impl;
 
 import com.ahad.salary.management.domain.entity.Employee;
+import com.ahad.salary.management.domain.entity.Transaction;
 import com.ahad.salary.management.domain.request.AddEmployeeRequest;
+import com.ahad.salary.management.domain.request.ProvideSalaryRequest;
 import com.ahad.salary.management.domain.request.UpdateEmployeeRequest;
+import com.ahad.salary.management.domain.response.ProvideSalaryResponse;
 import com.ahad.salary.management.repository.EmployeeRepository;
-import com.ahad.salary.management.response.EmployeeResponse;
-import com.ahad.salary.management.response.ListResponse;
-import com.ahad.salary.management.response.SingleResponse;
+import com.ahad.salary.management.domain.response.EmployeeResponse;
+import com.ahad.salary.management.domain.response.ListResponse;
+import com.ahad.salary.management.domain.response.SingleResponse;
 import com.ahad.salary.management.service.EmployeeService;
 import com.ahad.salary.management.util.EmployeeUtils;
 import jakarta.transaction.Transactional;
@@ -18,8 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -189,5 +192,53 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 totalAmount.isEmpty() ? "No value present" : null
                         )
                 );
+    }
+
+    @Override
+    public ResponseEntity<SingleResponse<ProvideSalaryResponse, String>> provideSalary(
+            ProvideSalaryRequest provideSalaryRequest
+    ) {
+
+        double totalAmount = Objects.requireNonNull(getTotalSalaryAmount(provideSalaryRequest.getLowerSalary()).getBody()).getData();
+        if (totalAmount > provideSalaryRequest.getTotalSalary()) {
+            employeeRepository
+                    .findAll()
+                    .forEach( e-> {
+                        e.getBankAccount()
+                                .getTransaction()
+                                .add(
+                                        new Transaction(
+                                                null,
+                                                provideSalaryRequest.getLowerSalary() + (lowestSalary * (e.getGrade() - lowestGradeRating)),
+                                                EmployeeUtils.TransactionType.IN.toString(),
+                                                null)
+                                );
+                    });
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(
+                            new SingleResponse<>(
+                                    HttpStatus.OK.value(),
+                                    new ProvideSalaryResponse(
+                                            0,
+                                            "Salary provided"
+                                    ),
+                                    null
+                            )
+                    );
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(
+                            new SingleResponse<>(
+                                    HttpStatus.OK.value(),
+                                    new ProvideSalaryResponse(
+                                            totalAmount - provideSalaryRequest.getTotalSalary(),
+                                            "Please add more money"
+                                    ),
+                                    "Amount not sufficient"
+                            )
+                    );
+        }
     }
 }

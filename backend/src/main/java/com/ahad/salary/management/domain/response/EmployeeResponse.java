@@ -1,4 +1,4 @@
-package com.ahad.salary.management.response;
+package com.ahad.salary.management.domain.response;
 
 import com.ahad.salary.management.domain.entity.Address;
 import lombok.AllArgsConstructor;

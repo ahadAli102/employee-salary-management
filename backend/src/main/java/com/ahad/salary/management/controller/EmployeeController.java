@@ -1,9 +1,9 @@
 package com.ahad.salary.management.controller;
 
 import com.ahad.salary.management.domain.request.UpdateEmployeeRequest;
-import com.ahad.salary.management.response.EmployeeResponse;
-import com.ahad.salary.management.response.ListResponse;
-import com.ahad.salary.management.response.SingleResponse;
+import com.ahad.salary.management.domain.response.EmployeeResponse;
+import com.ahad.salary.management.domain.response.ListResponse;
+import com.ahad.salary.management.domain.response.SingleResponse;
 import com.ahad.salary.management.domain.entity.Employee;
 import com.ahad.salary.management.domain.request.AddEmployeeRequest;
 import com.ahad.salary.management.service.EmployeeService;

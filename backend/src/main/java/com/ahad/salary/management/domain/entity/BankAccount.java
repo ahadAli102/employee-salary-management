@@ -14,21 +14,20 @@ import java.util.Set;
 @Table(name = "bank_account_info_table")
 public class BankAccount {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer number;
     @Column(length = 10)
     private String accountType;
     @Column(length = 30)
     private String accountName;
     private double currentBalance;
-
-    @ManyToOne
-    private Bank bank;
     @Column(length = 30)
     private String branchName;
 
     @OneToOne
     private Employee employee;
+
+    @ManyToOne
+    private Bank bank;
 
     @OneToMany(mappedBy = "account")
     @ToString.Exclude
