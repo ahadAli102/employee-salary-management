@@ -11,6 +11,7 @@ import com.ahad.salary.management.service.EmployeeService;
 import com.ahad.salary.management.util.EmployeeUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,12 @@ import java.util.Optional;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+
+    @Value("${lowest.grade.rating}")
+    private Integer lowestGradeRating;
+
+    @Value("${lowest.salary}")
+    private Integer lowestSalary;
     @Override
     public ResponseEntity<SingleResponse<Employee,String>> addEmployee(AddEmployeeRequest addEmployeeRequest) {
         System.out.println("add employee "+addEmployeeRequest);
@@ -161,5 +169,40 @@ public class EmployeeServiceImpl implements EmployeeService {
         return ResponseEntity
                 .status(HttpStatusCode.valueOf(response.getStatusCode()))
                 .body(response);
+    }
+
+    @Override
+    public ResponseEntity<SingleResponse<Double, String>> getTotalSalaryAmount(double lowestGradeSalary) {
+//        Optional<Double> totalAmount = employeeRepository
+//                .findAll()
+//                .stream()
+//                .map(employee -> lowestGradeSalary + (lowestGradeSalary * (highestGradeRating - employee.getGrade())))
+//                .reduce(Double::sum);
+
+        Optional<Double> totalAmount = employeeRepository
+                .findAll()
+                .stream()
+                .map(new Function<Employee, Double>() {
+
+
+                    @Override
+                    public Double apply(Employee employee) {
+                        double salary = lowestGradeSalary + (lowestSalary * (employee.getGrade() - lowestGradeRating));
+
+                        System.out.println("Grade: "+employee.getGrade() + " base: "+lowestGradeSalary+" salary: "+salary);
+                        return salary;
+                    }
+                })
+                .reduce(Double::sum);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        new SingleResponse<>(
+                                HttpStatus.OK.value(),
+                                totalAmount.get(),
+                                totalAmount.isEmpty() ? "No value present" : null
+                        )
+                );
     }
 }
