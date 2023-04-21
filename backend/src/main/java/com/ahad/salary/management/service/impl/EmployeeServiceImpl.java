@@ -173,26 +173,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public ResponseEntity<SingleResponse<Double, String>> getTotalSalaryAmount(double lowestGradeSalary) {
-//        Optional<Double> totalAmount = employeeRepository
-//                .findAll()
-//                .stream()
-//                .map(employee -> lowestGradeSalary + (lowestGradeSalary * (highestGradeRating - employee.getGrade())))
-//                .reduce(Double::sum);
 
         Optional<Double> totalAmount = employeeRepository
                 .findAll()
                 .stream()
-                .map(new Function<Employee, Double>() {
-
-
-                    @Override
-                    public Double apply(Employee employee) {
-                        double salary = lowestGradeSalary + (lowestSalary * (employee.getGrade() - lowestGradeRating));
-
-                        System.out.println("Grade: "+employee.getGrade() + " base: "+lowestGradeSalary+" salary: "+salary);
-                        return salary;
-                    }
-                })
+                .map(employee -> lowestGradeSalary + (lowestSalary * (employee.getGrade() - lowestGradeRating)))
                 .reduce(Double::sum);
 
         return ResponseEntity
