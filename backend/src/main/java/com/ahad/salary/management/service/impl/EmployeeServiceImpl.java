@@ -10,6 +10,7 @@ import com.ahad.salary.management.repository.EmployeeRepository;
 import com.ahad.salary.management.domain.response.EmployeeResponse;
 import com.ahad.salary.management.domain.response.ListResponse;
 import com.ahad.salary.management.domain.response.SingleResponse;
+import com.ahad.salary.management.repository.TransactionRepository;
 import com.ahad.salary.management.service.EmployeeService;
 import com.ahad.salary.management.util.EmployeeUtils;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,6 +32,7 @@ import java.util.Optional;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final TransactionRepository transactionRepository;
 
     @Value("${lowest.grade.rating}")
     private Integer lowestGradeRating;
@@ -188,7 +191,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .body(
                         new SingleResponse<>(
                                 HttpStatus.OK.value(),
-                                totalAmount.get(),
+                                totalAmount.isEmpty() ? 0 : totalAmount.get(),
                                 totalAmount.isEmpty() ? "No value present" : null
                         )
                 );
@@ -200,20 +203,22 @@ public class EmployeeServiceImpl implements EmployeeService {
     ) {
 
         double totalAmount = Objects.requireNonNull(getTotalSalaryAmount(provideSalaryRequest.getLowerSalary()).getBody()).getData();
-        if (totalAmount > provideSalaryRequest.getTotalSalary()) {
+        System.out.println(provideSalaryRequest);
+        System.out.println(totalAmount+"-"+provideSalaryRequest.getTotalSalary());
+        if (totalAmount <= provideSalaryRequest.getTotalSalary()) {
             employeeRepository
                     .findAll()
-                    .forEach( e-> {
-                        e.getBankAccount()
-                                .getTransaction()
-                                .add(
-                                        new Transaction(
-                                                null,
-                                                provideSalaryRequest.getLowerSalary() + (lowestSalary * (e.getGrade() - lowestGradeRating)),
-                                                EmployeeUtils.TransactionType.IN.toString(),
-                                                null)
-                                );
-                    });
+                    .forEach( e-> transactionRepository
+                            .save(
+                                    new Transaction(
+                                            null,
+                                            provideSalaryRequest.getLowerSalary() + (lowestSalary * (e.getGrade() - lowestGradeRating)),
+                                            EmployeeUtils.TransactionType.IN.toString(),
+                                            LocalDateTime.now(),
+                                            e.getBankAccount()
+                                    )
+                            )
+                    );
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(

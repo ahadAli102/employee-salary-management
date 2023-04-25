@@ -3,6 +3,8 @@ package com.ahad.salary.management.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -17,6 +19,7 @@ public class Transaction {
     private Integer id;
     private double amount;
     private String type;
+    private LocalDateTime time;
 
     @ManyToOne
     BankAccount account;
