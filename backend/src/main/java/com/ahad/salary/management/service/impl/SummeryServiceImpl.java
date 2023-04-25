@@ -2,8 +2,11 @@ package com.ahad.salary.management.service.impl;
 
 import com.ahad.salary.management.domain.entity.BankAccount;
 import com.ahad.salary.management.domain.response.CompanyAccountSummery;
+import com.ahad.salary.management.domain.response.EmployeeSalarySheetResponse;
+import com.ahad.salary.management.domain.response.ListResponse;
 import com.ahad.salary.management.domain.response.SingleResponse;
 import com.ahad.salary.management.repository.BankAccountRepository;
+import com.ahad.salary.management.repository.EmployeeRepository;
 import com.ahad.salary.management.repository.TransactionRepository;
 import com.ahad.salary.management.service.SummeryService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,6 +23,7 @@ public class SummeryServiceImpl implements SummeryService {
 
     private final TransactionRepository transactionRepository;
     private final BankAccountRepository bankAccountRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Override
     public ResponseEntity<SingleResponse<CompanyAccountSummery, String>> getCompanyAccountSummery(int id) {
@@ -47,5 +52,32 @@ public class SummeryServiceImpl implements SummeryService {
                     );
         }
 
+    }
+
+    @Override
+    public ResponseEntity<ListResponse<EmployeeSalarySheetResponse, String>> getSalarySheet() {
+        List<EmployeeSalarySheetResponse> employeeSalarySheetResponses =
+                employeeRepository.findAll()
+                .stream().map(employee -> {
+
+                    EmployeeSalarySheetResponse essr = new EmployeeSalarySheetResponse();
+                    essr.setName(employee.getName());
+                    essr.setRank(employee.getGrade());
+                    essr.setSalary(transactionRepository.getLastTransactionOfEmployee(employee.getId()));
+                    System.out.println(essr);
+                    return essr;
+
+                }).toList();
+
+        return ResponseEntity
+                .ok(
+                        new ListResponse<>(
+                                HttpStatus.OK.value(),
+                                employeeSalarySheetResponses,
+                                employeeSalarySheetResponses.size(),
+                                1,
+                                null
+                        )
+                );
     }
 }

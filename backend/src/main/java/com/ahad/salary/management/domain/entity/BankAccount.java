@@ -3,6 +3,7 @@ package com.ahad.salary.management.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -31,5 +32,5 @@ public class BankAccount {
 
     @OneToMany(mappedBy = "account")
     @ToString.Exclude
-    private Set<Transaction> transaction;
+    private List<Transaction> transaction;
 }

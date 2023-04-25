@@ -1,6 +1,8 @@
 package com.ahad.salary.management.controller;
 
 import com.ahad.salary.management.domain.response.CompanyAccountSummery;
+import com.ahad.salary.management.domain.response.EmployeeSalarySheetResponse;
+import com.ahad.salary.management.domain.response.ListResponse;
 import com.ahad.salary.management.domain.response.SingleResponse;
 import com.ahad.salary.management.service.SummeryService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,12 @@ public class SummeryController {
     @GetMapping("/company/{id}")
     public ResponseEntity<SingleResponse<CompanyAccountSummery,String>> getCompanyAccountSummery(
             @PathVariable("id") int id
-    ){
+    ) {
         return summeryService.getCompanyAccountSummery(id);
+    }
+
+    @GetMapping("/salary-sheet")
+    public ResponseEntity<ListResponse<EmployeeSalarySheetResponse,String>> getSalarySheet() {
+        return summeryService.getSalarySheet();
     }
 }
