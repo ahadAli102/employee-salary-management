@@ -1,11 +1,14 @@
 package com.ahad.salary.management.service.impl;
 
+import com.ahad.salary.management.domain.entity.BankAccount;
 import com.ahad.salary.management.domain.entity.Employee;
 import com.ahad.salary.management.domain.entity.Transaction;
 import com.ahad.salary.management.domain.request.AddEmployeeRequest;
 import com.ahad.salary.management.domain.request.ProvideSalaryRequest;
 import com.ahad.salary.management.domain.request.UpdateEmployeeRequest;
 import com.ahad.salary.management.domain.response.ProvideSalaryResponse;
+import com.ahad.salary.management.repository.BankAccountRepository;
+import com.ahad.salary.management.repository.BankRepository;
 import com.ahad.salary.management.repository.EmployeeRepository;
 import com.ahad.salary.management.domain.response.EmployeeResponse;
 import com.ahad.salary.management.domain.response.ListResponse;
@@ -39,6 +42,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Value("${lowest.salary}")
     private Integer lowestSalary;
+    private final BankAccountRepository bankAccountRepository;
+
     @Override
     public ResponseEntity<SingleResponse<Employee,String>> addEmployee(AddEmployeeRequest addEmployeeRequest) {
         System.out.println("add employee "+addEmployeeRequest);
@@ -205,20 +210,42 @@ public class EmployeeServiceImpl implements EmployeeService {
         double totalAmount = Objects.requireNonNull(getTotalSalaryAmount(provideSalaryRequest.getLowerSalary()).getBody()).getData();
         System.out.println(provideSalaryRequest);
         System.out.println(totalAmount+"-"+provideSalaryRequest.getTotalSalary());
-        if (totalAmount <= provideSalaryRequest.getTotalSalary()) {
+
+        Optional<BankAccount> optionalBankAccount = bankAccountRepository.findById(provideSalaryRequest.getBankAccountId());
+
+        if ( totalAmount <= provideSalaryRequest.getTotalSalary()
+                && optionalBankAccount.isPresent()
+                && totalAmount <= optionalBankAccount.get().getCurrentBalance()
+        ) {
+            BankAccount companyBankAccount = optionalBankAccount.get();
+            companyBankAccount.setCurrentBalance(companyBankAccount.getCurrentBalance() - totalAmount);
             employeeRepository
                     .findAll()
-                    .forEach( e-> transactionRepository
+                    .forEach( e-> {
+                        double salary = provideSalaryRequest.getLowerSalary() + (lowestSalary * (e.getGrade() - lowestGradeRating));
+                        e.getBankAccount().setCurrentBalance(
+                                e.getBankAccount().getCurrentBalance() + salary
+                        );
+                        transactionRepository
                             .save(
                                     new Transaction(
                                             null,
-                                            provideSalaryRequest.getLowerSalary() + (lowestSalary * (e.getGrade() - lowestGradeRating)),
+                                            salary,
                                             EmployeeUtils.TransactionType.IN.toString(),
                                             LocalDateTime.now(),
                                             e.getBankAccount()
                                     )
-                            )
-                    );
+                            );
+                    });
+            transactionRepository.save(
+                    new Transaction(
+                            null,
+                            totalAmount,
+                            EmployeeUtils.TransactionType.OUT.toString(),
+                            LocalDateTime.now(),
+                            companyBankAccount
+                    )
+            );
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(

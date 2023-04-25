@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProvideSalaryRequest {
 
+    private int bankAccountId;
     private double lowerSalary;
     private double totalSalary;
 }

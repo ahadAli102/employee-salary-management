@@ -15,7 +15,7 @@ import java.util.Set;
 public class BankAccount {
     @Id
     private Integer number;
-    @Column(length = 10)
+    @Column(length = 20)
     private String accountType;
     @Column(length = 30)
     private String accountName;
